@@ -1,0 +1,52 @@
+# Java build files
+*.class
+*.jar
+*.war
+*.ear
+
+# Quarkus specific
+target/
+.quarkus/
+
+# Maven specific
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+.env
+
+# Protobuf generated files
+*.pb.go
+*.pb.cc
+*.pb.h
+*.pb.java
+
+# Kafka
+kafka-logs/
+zookeeper/
