@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package urbanpulse;
+
+message SystemEvent {
+    string eventId = 1;
+    string serviceName = 2;
+    string eventType = 3; // e.g., "INFO", "ERROR", "WARN"
+    string description = 4;
+    int64 timestamp = 5;
+}

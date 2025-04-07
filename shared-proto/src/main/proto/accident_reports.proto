@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package urbanpulse;
+
+message AccidentReport {
+    string reportId = 1;
+    string reporterName = 2;
+    double latitude = 3;
+    double longitude = 4;
+    string description = 5;
+    int64 timestamp = 6;
+}

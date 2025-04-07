@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package urbanpulse;
+
+message TrafficSensorData {
+    string sensorId = 1;
+    double latitude = 2;
+    double longitude = 3;
+    int32 vehicleCount = 4;
+    int64 timestamp = 5;
+}
+

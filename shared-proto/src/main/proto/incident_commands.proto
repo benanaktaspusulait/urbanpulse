@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package urbanpulse;
+
+message IncidentCommand {
+    string commandId = 1;
+    string type = 2; // e.g., "dispatch", "alert"
+    string description = 3;
+    double latitude = 4;
+    double longitude = 5;
+    int64 timestamp = 6;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package urbanpulse;
+
+message SensorStatus {
+    string sensorId = 1;
+    string status = 2; // e.g., "online", "offline"
+    int64 timestamp = 3;
+}

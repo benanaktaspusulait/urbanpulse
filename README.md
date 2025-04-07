@@ -1,4 +1,3 @@
-
 # UrbanPulse 🚦
 
 **UrbanPulse** is a real-time traffic monitoring and emergency response microservices system built with Java 21 and Quarkus. It simulates urban traffic data, processes live events, detects congestion, and triggers emergency response actions using a fully asynchronous event-driven architecture powered by Apache Kafka.
@@ -36,17 +35,19 @@
 ### 5. `alert-notifier-service`
 - Listens to `incident-commands`
 - Sends mocked alerts (console, logs, webhook)
+- Emits to Kafka topic: `alert-notifications`
 
 ---
 
 ## 🔄 Kafka Topics
 
 | Topic Name            | Description                                |
-|----------------------|--------------------------------------------|
+|-----------------------|--------------------------------------------|
 | `traffic-sensor-data` | Sensor data stream from simulator           |
 | `accident-reports`    | Reports submitted by citizens               |
 | `congestion-alerts`   | Events emitted when congestion is detected  |
 | `incident-commands`   | Commands for emergency responders           |
+| `alert-notifications` | Notifications sent by the alert service     |
 
 ---
 
