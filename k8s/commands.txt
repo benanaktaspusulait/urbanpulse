@@ -29,7 +29,14 @@ kubectl apply -f kafka-deployment.yaml
 kubectl wait --for=condition=ready pod -l app=kafka --timeout=300s
 
 # Deploy Kafdrop
+# Apply RBAC (if not already applied)
+kubectl apply -f kafdrop-rbac.yaml
+
+# Apply Deployment
 kubectl apply -f kafdrop-deployment.yaml
+
+# Apply Service
+kubectl apply -f kafdrop-service.yaml
 
 # Check the status of pods
 kubectl get pods

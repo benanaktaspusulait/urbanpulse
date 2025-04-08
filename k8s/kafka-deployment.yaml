@@ -1,3 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kafka-sa
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kafka-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "endpoints"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kafka-rb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kafka-role
+subjects:
+  - kind: ServiceAccount
+    name: kafka-sa
+    namespace: default
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,29 +41,54 @@ spec:
     metadata:
       labels:
         app: kafka
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9092"
     spec:
+      serviceAccountName: kafka-sa
+      automountServiceAccountToken: false
       containers:
-      - name: kafka
-        image: bitnami/kafka:3.5.1
-        ports:
-        - containerPort: 9092
-        env:
-        - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-          value: zookeeper:2181
-        - name: KAFKA_CFG_LISTENERS
-          value: PLAINTEXT://:9092
-        - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: PLAINTEXT://kafka:9092
-        - name: ALLOW_PLAINTEXT_LISTENER
-          value: "yes"
-        - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
-          value: "true"
-        volumeMounts:
-        - name: kafka-data
-          mountPath: /bitnami/kafka
+        - name: kafka
+          image: bitnami/kafka:3.5.1
+          ports:
+            - containerPort: 9092
+              name: kafka
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: "zookeeper:2181"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka:9092"
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+            - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+              ephemeral-storage: "10Gi"
+            limits:
+              memory: "4Gi"
+              ephemeral-storage: "20Gi"
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /bitnami/kafka
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 30
+            periodSeconds: 10
       volumes:
-      - name: kafka-data
-        emptyDir: {}
+        - name: kafka-data
+          emptyDir:
+            sizeLimit: "20Gi"
 ---
 apiVersion: v1
 kind: Service
@@ -44,7 +97,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 9092
-    targetPort: 9092
+    - port: 9092
+      targetPort: 9092
+      name: kafka
   selector:
     app: kafka

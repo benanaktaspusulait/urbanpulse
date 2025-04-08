@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kafdrop
-  labels:
-    app: kafdrop
 spec:
   replicas: 1
   selector:
@@ -14,25 +12,33 @@ spec:
       labels:
         app: kafdrop
     spec:
+      serviceAccountName: kafdrop-sa
+      automountServiceAccountToken: false
       containers:
-      - name: kafdrop
-        image: obsidiandynamics/kafdrop:latest
-        ports:
-        - containerPort: 9000
-        env:
-        - name: KAFKA_BROKERCONNECT
-          value: "kafka:9092"
-        - name: JVM_OPTS
-          value: "-Xms32M -Xmx64M"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kafdrop
-spec:
-  ports:
-  - port: 9000
-    targetPort: 9000
-  selector:
-    app: kafdrop
-  type: LoadBalancer
+        - name: kafdrop
+          image: obsidiandynamics/kafdrop:3.31.0  # Specific version
+          ports:
+            - containerPort: 9000
+          env:
+            - name: KAFKA_BROKERCONNECT
+              value: "kafka:9092"
+            - name: SERVER_SERVLET_CONTEXTPATH
+              value: "/"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 5
