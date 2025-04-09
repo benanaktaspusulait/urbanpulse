@@ -36,6 +36,20 @@
 | Simulation & Load         | Gatling (within sensor service)     |
 | Containerization          | Docker & Docker Compose             |
 | Build Tool                | Maven (multi-module)                |
+| gRPC                      | gRPC (real-time communication)      |
+
+### Sensor Simulator Service Tech Stack
+| Component                 | Technology                         |
+|---------------------------|-------------------------------------|
+| Language                  | Scala 2.12.18                      |
+| Build Tool                | SBT                                |
+| Simulation Framework      | Gatling 3.9.5                      |
+| Real-time Communication   | gRPC 1.58.0                        |
+| Streaming                 | Akka Streams 2.6.20                |
+| Web Framework             | Play Framework 2.8.20              |
+| Testing                   | ScalaTest 3.2.15                   |
+| Kafka Integration         | Kafka Clients 3.5.1                |
+| Embedded Testing          | Embedded Kafka 3.5.1               |
 
 ---
 
@@ -45,6 +59,13 @@
 - Simulates high-throughput traffic sensor data
 - Publishes to Kafka topic: `traffic-sensor-data`
 - Internally runs Gatling-style simulation logic
+- Provides real-time gRPC streaming interface
+- Features:
+  - Realistic traffic pattern simulation
+  - Geographic area-based traffic distribution
+  - Sensor health monitoring
+  - Performance testing capabilities
+  - Interactive web dashboard
 
 ### `citizen-report-service`
 - Exposes REST endpoint to receive accident reports
@@ -64,6 +85,34 @@
 - Listens to `incident-commands`
 - Sends out alerts (mocked via logs, console, or future integrations)
 
+### `sensor-status-service`
+- Publishes sensor status to Kafka topic: `sensor-status`
+
+### `traffic-predictions-service`
+- Publishes traffic predictions to Kafka topic: `traffic-predictions`
+
+### `traffic-analysis-service`
+- Kafka Streams-based microservice
+- Listens to `traffic-sensor-data` and detects congestion
+- Publishes to Kafka topic: `congestion-alerts`
+
+### `incident-coordinator-service`
+- Listens to `accident-reports` and `congestion-alerts`
+- Cross-analyzes incidents and triggers emergency response logic
+- Publishes to Kafka topic: `incident-commands`
+
+### `alert-notifier-service`
+- Listens to `incident-commands`
+- Sends out alerts (mocked via logs, console, or future integrations)
+
+### `dashboard-service`
+- Provides real-time traffic visualization
+- Features:
+  - Real-time traffic map
+  - Sensor status monitoring
+  - Alert visualization
+  - Historical data analysis
+
 ---
 
 ## 🔁 Kafka Topics
@@ -74,6 +123,8 @@
 | `accident-reports`    | Reports of incidents submitted via REST API    |
 | `congestion-alerts`   | Alerts emitted by the traffic analysis service |
 | `incident-commands`   | Commands to trigger emergency responses        |
+| `sensor-status`       | Health status of sensors                        |
+| `traffic-predictions` | Traffic flow predictions                        |
 
 ---
 
@@ -173,6 +224,16 @@ The system uses the following Kafka topics:
    - Purpose: Commands to trigger emergency responses
    - Producer: `incident-coordinator-service`
    - Consumer: `alert-notifier-service`
+
+5. **sensor-status**
+   - Purpose: Health status of sensors
+   - Producer: `sensor-simulator-service`
+   - Consumer: `traffic-analysis-service`
+
+6. **traffic-predictions**
+   - Purpose: Traffic flow predictions
+   - Producer: `traffic-analysis-service`
+   - Consumer: `traffic-predictions-service`
 
 ### Monitoring and Management
 
