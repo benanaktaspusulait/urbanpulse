@@ -1,0 +1,56 @@
+# Build and Run Commands for Sensor Simulator Service
+
+# 1. Build the project
+sbt clean compile
+
+# 2. Run tests
+sbt test
+
+# 3. Run Gatling simulation
+sbt gatling:test
+
+# 4. Create fat JAR
+sbt assembly
+
+# 5. Run the service using the fat JAR
+java -jar target/scala-2.13/sensor-simulator-service.jar
+
+# 6. Check Kafka topics (in a separate terminal)
+kubectl exec -it <kafka-pod> -- kafka-topics.sh --list --bootstrap-server localhost:9092
+
+# 7. Monitor Kafka messages (in a separate terminal)
+kubectl exec -it <kafka-pod> -- kafka-console-consumer.sh --topic traffic-sensor-data --from-beginning --bootstrap-server localhost:9092
+
+# 8. View Gatling reports
+# After running the simulation, reports will be available in:
+# target/gatling/<simulation-name>-<timestamp>
+
+# 9. Clean build artifacts
+sbt clean
+
+# 10. Update dependencies
+sbt update
+
+# 11. Show dependency tree
+sbt dependencyTree
+
+# 12. Run specific Gatling simulation
+sbt "gatling:testOnly com.urbanpulse.sensor.TrafficSensorSimulation"
+
+# 13. Run with specific simulation parameters
+sbt "gatling:testOnly com.urbanpulse.sensor.TrafficSensorSimulation -Dusers=100 -DrampDuration=30 -DsteadyDuration=300"
+
+# 14. Generate Gatling reports from existing simulation
+sbt gatling:lastReport
+
+# 15. Check Kafka producer metrics
+kubectl exec -it <kafka-pod> -- kafka-producer-perf-test.sh --topic traffic-sensor-data --num-records 1000 --record-size 100 --throughput 100 --producer-props bootstrap.servers=localhost:9092
+
+# 16.docker build -t sensor-simulator-service .
+
+# 17. docker run sensor-simulator-service
+
+
+# Note: Replace <kafka-pod> with your actual Kafka pod name
+# You can get the pod name using:
+kubectl get pods -l app=kafka 

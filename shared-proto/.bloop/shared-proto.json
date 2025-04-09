@@ -1,0 +1,121 @@
+{
+    "version": "1.4.0",
+    "project": {
+        "name": "shared-proto",
+        "directory": "/Users/benanaktas/project/urbanpulse/shared-proto",
+        "workspaceDir": "/Users/benanaktas/project/urbanpulse/shared-proto",
+        "sources": [
+            "/Users/benanaktas/project/urbanpulse/shared-proto/target/generated-sources/protobuf/java"
+        ],
+        "dependencies": [
+            
+        ],
+        "classpath": [
+            "/Users/benanaktas/project/urbanpulse/shared-proto/target/classes",
+            "/Users/benanaktas/.m2/repository/com/google/protobuf/protobuf-java/3.23.4/protobuf-java-3.23.4.jar"
+        ],
+        "out": "/Users/benanaktas/project/urbanpulse/shared-proto/target",
+        "classesDir": "/Users/benanaktas/project/urbanpulse/shared-proto/target/classes",
+        "resources": [
+            "/Users/benanaktas/project/urbanpulse/shared-proto/src/main/resources",
+            "/Users/benanaktas/project/urbanpulse/shared-proto/src/main/proto"
+        ],
+        "java": {
+            "options": [
+                "-g",
+                "-encoding",
+                "UTF-8"
+            ]
+        },
+        "test": {
+            "frameworks": [
+                {
+                    "names": [
+                        "com.novocode.junit.JUnitFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.scalatest.tools.Framework",
+                        "org.scalatest.tools.ScalaTestFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.scalacheck.ScalaCheckFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "org.specs.runner.SpecsFramework",
+                        "org.specs2.runner.Specs2Framework",
+                        "org.specs2.runner.SpecsFramework"
+                    ]
+                },
+                {
+                    "names": [
+                        "utest.runner.Framework"
+                    ]
+                },
+                {
+                    "names": [
+                        "munit.Framework"
+                    ]
+                }
+            ],
+            "options": {
+                "excludes": [
+                    
+                ],
+                "arguments": [
+                    {
+                        "args": [
+                            "-v",
+                            "-a"
+                        ],
+                        "framework": {
+                            "names": [
+                                "com.novocode.junit.JUnitFramework"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "platform": {
+            "name": "jvm",
+            "config": {
+                "home": "/Users/benanaktas/Library/Java/JavaVirtualMachines/corretto-21.0.2/Contents/Home",
+                "options": [
+                    
+                ]
+            },
+            "mainClass": [
+                
+            ]
+        },
+        "resolution": {
+            "modules": [
+                {
+                    "organization": "com.google.protobuf",
+                    "name": "protobuf-java",
+                    "version": "3.23.4",
+                    "artifacts": [
+                        {
+                            "name": "protobuf-java",
+                            "path": "/Users/benanaktas/.m2/repository/com/google/protobuf/protobuf-java/3.23.4/protobuf-java-3.23.4.jar"
+                        },
+                        {
+                            "name": "protobuf-java",
+                            "classifier": "sources",
+                            "path": "/Users/benanaktas/.m2/repository/com/google/protobuf/protobuf-java/3.23.4/protobuf-java-3.23.4-sources.jar"
+                        }
+                    ]
+                }
+            ]
+        },
+        "tags": [
+            "library"
+        ]
+    }
+}

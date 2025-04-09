@@ -1,0 +1,177 @@
+@()
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UrbanPulse Traffic Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-panel">
+        <h3>Traffic Status</h3>
+        <div id="stats">
+            <p>Active Sensors: <span id="sensorCount">0</span></p>
+            <p>Online Sensors: <span id="onlineCount">0</span></p>
+            <p>Active Alerts: <span id="alertCount">0</span></p>
+            <p>Recent Accidents: <span id="accidentCount">0</span></p>
+        </div>
+        <div class="legend">
+            <i style="background: #2ecc71"></i> Normal Traffic<br>
+            <i style="background: #f1c40f"></i> Moderate Traffic<br>
+            <i style="background: #e74c3c"></i> Heavy Traffic<br>
+            <i style="background: #3498db"></i> Accident<br>
+            <i style="background: #9b59b6"></i> Sensor Offline
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([41.0082, 28.9784], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Store markers and layers
+        const sensorMarkers = new Map();
+        const alertMarkers = new Map();
+        const accidentMarkers = new Map();
+
+        // Update traffic data
+        function updateTraffic() {
+            fetch('/api/traffic')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(sensor => {
+                        const latlng = [sensor.latitude, sensor.longitude];
+                        let color = '#2ecc71'; // Green
+                        if (sensor.vehicleCount > 800) color = '#e74c3c'; // Red
+                        else if (sensor.vehicleCount > 500) color = '#f1c40f'; // Yellow
+
+                        if (sensorMarkers.has(sensor.sensorId)) {
+                            sensorMarkers.get(sensor.sensorId).setLatLng(latlng);
+                        } else {
+                            const marker = L.circleMarker(latlng, {
+                                radius: 8,
+                                fillColor: color,
+                                color: '#000',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).addTo(map);
+                            marker.bindPopup(`Sensor: ${sensor.sensorId}<br>Vehicles: ${sensor.vehicleCount}`);
+                            sensorMarkers.set(sensor.sensorId, marker);
+                        }
+                    });
+                    document.getElementById('sensorCount').textContent = data.length;
+                });
+        }
+
+        // Update sensor status
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    let onlineCount = 0;
+                    data.forEach(status => {
+                        if (status.status === 'offline' && sensorMarkers.has(status.sensorId)) {
+                            sensorMarkers.get(status.sensorId).setStyle({
+                                fillColor: '#9b59b6',
+                                color: '#000'
+                            });
+                        } else if (status.status === 'online') {
+                            onlineCount++;
+                        }
+                    });
+                    document.getElementById('onlineCount').textContent = onlineCount;
+                });
+        }
+
+        // Update alerts
+        function updateAlerts() {
+            fetch('/api/alerts')
+                .then(response => response.json())
+                .then(data => {
+                    alertMarkers.forEach(marker => marker.remove());
+                    alertMarkers.clear();
+
+                    data.forEach(alert => {
+                        const marker = L.circleMarker([alert.latitude, alert.longitude], {
+                            radius: 12,
+                            fillColor: '#e74c3c',
+                            color: '#000',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+                        marker.bindPopup(`Alert: ${alert.alertId}<br>Vehicles: ${alert.vehicleCount}`);
+                        alertMarkers.set(alert.alertId, marker);
+                    });
+                    document.getElementById('alertCount').textContent = data.length;
+                });
+        }
+
+        // Update accidents
+        function updateAccidents() {
+            fetch('/api/accidents')
+                .then(response => response.json())
+                .then(data => {
+                    accidentMarkers.forEach(marker => marker.remove());
+                    accidentMarkers.clear();
+
+                    data.forEach(accident => {
+                        const marker = L.circleMarker([accident.latitude, accident.longitude], {
+                            radius: 10,
+                            fillColor: '#3498db',
+                            color: '#000',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+                        marker.bindPopup(`Accident: ${accident.description}<br>Reported by: ${accident.reporterName}`);
+                        accidentMarkers.set(accident.reportId, marker);
+                    });
+                    document.getElementById('accidentCount').textContent = data.length;
+                });
+        }
+
+        // Update data every 5 seconds
+        setInterval(() => {
+            updateTraffic();
+            updateStatus();
+            updateAlerts();
+            updateAccidents();
+        }, 5000);
+
+        // Initial update
+        updateTraffic();
+        updateStatus();
+        updateAlerts();
+        updateAccidents();
+    </script>
+</body>
+</html> 

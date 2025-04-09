@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package com.urbanpulse.traffic;
+
+option java_multiple_files = true;
+option java_package = "com.urbanpulse.traffic";
+option java_outer_classname = "TrafficServiceProto";
+
+import "traffic_sensor_data.proto";
+import "sensor_status.proto";
+import "congestion_alerts.proto";
+import "accident_reports.proto";
+
+// Service for real-time traffic monitoring
+service TrafficMonitoringService {
+  // Stream real-time traffic data
+  rpc StreamTrafficData (TrafficDataRequest) returns (stream TrafficSensorData) {}
+  
+  // Get current sensor status
+  rpc GetSensorStatus (SensorStatusRequest) returns (SensorStatus) {}
+  
+  // Report an accident
+  rpc ReportAccident (AccidentReport) returns (AccidentReportResponse) {}
+  
+  // Get active congestion alerts
+  rpc GetActiveAlerts (AlertRequest) returns (stream CongestionAlert) {}
+}
+
+// Request messages
+message TrafficDataRequest {
+  string area = 1;  // Optional area filter
+  int32 max_sensors = 2;  // Maximum number of sensors to return
+}
+
+message SensorStatusRequest {
+  string sensor_id = 1;  // Optional sensor ID filter
+}
+
+message AlertRequest {
+  string area = 1;  // Optional area filter
+  int32 severity_threshold = 2;  // Minimum severity level
+}
+
+message AccidentReportResponse {
+  string report_id = 1;
+  bool success = 2;
+  string message = 3;
+} 
